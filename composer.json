@@ -1,0 +1,5 @@
+{
+    "require-dev": {
+        "jesseschalken/autoload-generator": "^0.2.3"
+    }
+}
