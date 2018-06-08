@@ -1,17 +1,16 @@
 #!/usr/bin/env php
 <?php
-use WsHistory\Common\Config;
 use WsHistory\Common\ServerException;
+use WsHistory\Reader;
 
-require(__DIR__ . '/autoload.php');
+require(__DIR__ . '/../vendor/autoload.php');
 
 try {
-	$reader = new WsHistory\Reader\App();
+	$reader = new Reader();
 	$reader->readRecords('pc');
 	$reader->readRecords('ps4');
 	$reader->readRecords('xb1');
 }
 catch (ServerException $e) {
-	echo $e->getMessage() . $e->getDetails() . "\n";
+	printf("%s: %s\n", $e->getMessage(), $e->getDetails());
 }
-?>

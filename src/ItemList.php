@@ -1,12 +1,17 @@
 <?php
-namespace WsHistory\Items;
+namespace WsHistory;
 
 use WsHistory\Common\Db;
 use WsHistory\Common\InputException;
 use WsHistory\Common\ServerException;
 
-class App {
-	private $db;
+class ItemList extends AbstractHandler {
+	/**
+	* Enable browser cache because results don't change very often
+	*/
+	public function getClientCache(): int {
+		return 300;
+	}
 
 	/**
 	* Get list of all known items
@@ -29,4 +34,3 @@ class App {
 		return $results->fetchAll(\PDO::FETCH_ASSOC);
 	}
 }
-?>

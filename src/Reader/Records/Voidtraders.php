@@ -3,18 +3,16 @@ namespace WsHistory\Reader\Records;
 
 use WsHistory\Common\Db;
 use WsHistory\Common\ServerException;
-use WsHistory\Reader\Records\Records;
 
-class Voidtraders extends Records {
-	function __construct(Db $db, string $platform) {
+class Voidtraders extends AbstractRecords {
+	public function __construct(Db $db, string $platform) {
 		$this->db = $db;
-		$this->dbInfo = [
-			'tableRecords' => "{$platform}_voidtraders",
-			'tableRecordItems' => "{$platform}_voidtrader_items",
-			'columnRecordId' => 'voidtrader_id'
-		];
+		$this->dbTableRecords = "{$platform}_voidtraders";
+		$this->dbTableRecordItems = "{$platform}_voidtrader_items";
+		$this->dbColumnRecordId = 'voidtrader_id';
 	}
 
+	/* Documented in AbstractRecords.php */
 	public function readRecord(array $record): bool {
 		if (!isset($record['start']) || !isset($record['end']) || !isset($record['items']) || count($record['items']) > 50) {
 			return false;
@@ -26,8 +24,8 @@ class Voidtraders extends Records {
 		}
 		if (count($items) > 0) {
 			$statement = $this->db->conn->prepare("
-				INSERT INTO {$this->dbInfo['tableRecords']}
-					({$this->dbInfo['columnRecordId']}, time_start, time_end, location)
+				INSERT INTO {$this->dbTableRecords}
+					({$this->dbColumnRecordId}, time_start, time_end, location)
 				VALUES
 					(?, ?, ?, ?)
 				ON CONFLICT DO NOTHING");
@@ -42,4 +40,3 @@ class Voidtraders extends Records {
 		return false;
 	}
 }
-?>

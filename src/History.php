@@ -1,40 +1,70 @@
 <?php
-namespace WsHistory\Client;
+namespace WsHistory;
 
 use WsHistory\Common\Db;
 use WsHistory\Common\InputException;
 use WsHistory\Common\ServerException;
 
-class App {
-	const NumRecords = 50;
+class History extends AbstractHandler {
 	const RTAlerts = 'alerts';
 	const RTInvasions = 'invasions';
 	const RTVoidtraders = 'voidtraders';
+
 	const ValidPlatforms = ['pc', 'ps4', 'xb1'];
-	const ValidRecordTypes = [self::RTAlerts, self::RTInvasions, self::RTVoidtraders];
+	const ValidComponents = [self::RTAlerts, self::RTInvasions, self::RTVoidtraders];
 
-	private $db;
+	/**
+	* Maximum amount of records to fetch in a database query
+	*/
+	const NumRecords = 50;
+
+	/**
+	* Requested platform
+	*/
 	private $platform;
-	private $recordType;
 
-	function __construct(string $params) {
-		$paramsSplit = explode('/', trim($params, '/'));
-		$numParams = count($paramsSplit);
-		if ($numParams != 2) {
-			throw new InputException([
-				'platform' => 'Platform required',
-				'type' => 'Record type required'
-			]);
+	/**
+	* Requested component
+	*/
+	private $component;
+
+	/**
+	* Enable browser cache for fast comparison between different platforms
+	*
+	* @return int Browser cache lifetime
+	*/
+	public function getClientCache(): int {
+		return 300;
+	}
+
+	/**
+	* Validate and store request parameters
+	*/
+	public function setReqParams(array $reqParams): void {
+		$inputErrors = [];
+		if (!isset($reqParams['platform'])) {
+			$inputErrors['platform'] = 'Missing platform parameter';
 		}
-		list($platform, $recordType) = $paramsSplit;
-		if (!in_array($platform, self::ValidPlatforms)) {
-			throw new InputException(['platform' => "Unknown platform \"$platform\""]);
+		if (!isset($reqParams['component'])) {
+			$inputErrors['component'] = 'Missing component parameter';
 		}
-		if (!in_array($recordType, self::ValidRecordTypes)) {
-			throw new InputException(['type' => "Unknown record type \"$recordType\""]);
+		if (count($inputErrors) === 0) {
+			$platform = $reqParams['platform'];
+			if (!in_array($platform, self::ValidPlatforms)) {
+				$inputErrors['platform'] = "Unknown platform '$platform'";
+			}
+			$component = $reqParams['component'];
+			if (!in_array($component, self::ValidComponents)) {
+				$inputErrors['component'] = "Unknown component '$component'";
+			}
 		}
+
+		if (count($inputErrors) > 0) {
+			throw new InputException($inputErrors);
+		}
+
 		$this->platform = $platform;
-		$this->recordType = $recordType;
+		$this->component = $component;
 	}
 
 	/**
@@ -52,7 +82,7 @@ class App {
 		$searchQuery = $this->getSearchQuery();
 		$offset = $_GET['o'] ?? 0;
 		$dbColumns = "item_name AS name, item_type AS type, item_count AS count, time_start AS start, time_end AS end";
-		switch ($this->recordType) {
+		switch ($this->component) {
 			case self::RTAlerts:
 				$dbColumns .= ", mission_type AS info";
 				$dbColumnRecordId = 'alert_id';
@@ -119,4 +149,3 @@ class App {
 		return implode(' & ', $words) . ':*';
 	}
 }
-?>

@@ -3,25 +3,22 @@ namespace WsHistory\Reader\Records;
 
 use WsHistory\Common\Db;
 use WsHistory\Common\ServerException;
-use WsHistory\Reader\Records\Records;
 
-class InvasionsTmp extends Records {
+class InvasionsTmp extends AbstractRecords {
 
 	/**
 	* Keep track of invasions to figure out which ones are done.
 	*/
 	private $invasions = [];
 
-	function __construct(Db $db, string $platform) {
+	public function __construct(Db $db, string $platform) {
 		$this->db = $db;
-		$this->dbInfo = [
-			'tableRecords' => "{$platform}_invasions",
-			'tableRecordItems' => "{$platform}_invasion_items",
-			'columnRecordId' => 'invasion_id'
-		];
+		$this->dbTableRecords = "{$platform}_invasions";
+		$this->dbTableRecordItems = "{$platform}_invasion_items";
+		$this->dbColumnRecordId = 'invasion_id';
 	}
 
-	/* Documented in Records.php */
+	/* Documented in AbstractRecords.php */
 	public function readRecord(array $record): bool {
 		if (isset($record['start'])) {
 			$this->invasions[$record['id']] = $record;
@@ -51,8 +48,8 @@ class InvasionsTmp extends Records {
 				$invasion['end'] = $invasion['start'];
 			}
 			$statement = $this->db->conn->prepare("
-				INSERT INTO {$this->dbInfo['tableRecords']}
-					({$this->dbInfo['columnRecordId']}, time_start, time_end, location)
+				INSERT INTO {$this->dbTableRecords}
+					({$this->dbColumnRecordId}, time_start, time_end, location)
 				VALUES
 					(?, ?, ?, ?)
 				ON CONFLICT DO NOTHING");
@@ -67,4 +64,3 @@ class InvasionsTmp extends Records {
 		return false;
 	}
 }
-?>

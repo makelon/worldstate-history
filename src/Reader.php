@@ -1,5 +1,5 @@
 <?php
-namespace WsHistory\Reader;
+namespace WsHistory;
 
 use WsHistory\Common\Config;
 use WsHistory\Common\Db;
@@ -10,7 +10,7 @@ use WsHistory\Reader\Records\Invasions;
 use WsHistory\Reader\Records\InvasionsTmp;
 use WsHistory\Reader\Records\Voidtraders;
 
-class App {
+class Reader {
 	private $platform;
 	private $recordsDir;
 
@@ -18,10 +18,13 @@ class App {
 	private $filePositions;
 	private $readers;
 
-	function __construct() {
+	public function __construct() {
 		$this->db = new Db();
-		$statement = $this->db->conn->query("SELECT path, last_pos FROM file_positions");
-		while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+		$results = $this->db->conn->query("SELECT path, last_pos FROM file_positions");
+		if ($results == false) {
+			throw new ServerException('Database error', $this->db->conn->errorInfo()[2]);
+		}
+		while ($row = $results->fetch(\PDO::FETCH_ASSOC)) {
 			$this->filePositions[$row['path']] = $row['last_pos'];
 		}
 		Items::init($this->db);
@@ -34,7 +37,7 @@ class App {
 	*/
 	public function readRecords($platform) {
 		if (empty(Config::SourceDirs[$platform])) {
-			throw new \Exception("Unknown platform '$platform'");
+			throw new ServerException("Unknown platform \"$platform\"");
 		}
 		$this->recordsDir = Config::SourceDirs[$platform];
 		$this->platform = $platform;
@@ -120,7 +123,7 @@ class App {
 				$wasAdded = $recordReader->readRecord($record);
 			}
 			catch (ServerException $e) {
-				echo $e->getMessage() . $e->getDetails() . "\n";
+				printf("%s: %s\n", $e->getMessage(), $e->getDetails());
 				break;
 			}
 			$rewind = 0;
@@ -150,4 +153,3 @@ class App {
 		}
 	}
 }
-?>

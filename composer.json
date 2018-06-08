@@ -1,5 +1,10 @@
 {
-    "require-dev": {
-        "jesseschalken/autoload-generator": "^0.2.3"
-    }
+	"autoload": {
+		"psr-4": {
+			"WsHistory\\": "src/"
+		}
+	},
+	"require": {
+		"nikic/fast-route": "^1.3"
+	}
 }

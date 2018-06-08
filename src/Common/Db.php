@@ -1,8 +1,6 @@
 <?php
 namespace WsHistory\Common;
 
-use WsHistory\Common\Config;
-
 class Db {
 	public $conn;
 
@@ -12,8 +10,7 @@ class Db {
 			$this->conn = new \PDO($dsn, Config::DbUser, Config::DbPassword, Config::DbOptions);
 		}
 		catch (\PDOException $e) {
-			throw new \Exception('DB error: ' . $e->getMessage());
+			throw new ServerException('Database error', $e->getMessage());
 		}
 	}
 }
-?>

@@ -3,19 +3,16 @@ namespace WsHistory\Reader\Records;
 
 use WsHistory\Common\Db;
 use WsHistory\Common\ServerException;
-use WsHistory\Reader\Records\Records;
 
-class Alerts extends Records {
-	function __construct(Db $db, string $platform) {
+class Alerts extends AbstractRecords {
+	public function __construct(Db $db, string $platform) {
 		$this->db = $db;
-		$this->dbInfo = [
-			'tableRecords' => "{$platform}_alerts",
-			'tableRecordItems' => "{$platform}_alert_items",
-			'columnRecordId' => 'alert_id'
-		];
+		$this->dbTableRecords = "{$platform}_alerts";
+		$this->dbTableRecordItems = "{$platform}_alert_items";
+		$this->dbColumnRecordId = 'alert_id';
 	}
 
-	/* Documented in Records.php */
+	/* Documented in AbstractRecords.php */
 	public function readRecord(array $record): bool {
 		if (!isset($record['start']) || !isset($record['end']) || !isset($record['rewards']['items'])) {
 			return false;
@@ -23,8 +20,8 @@ class Alerts extends Records {
 		$items = $record['rewards']['items'];
 		if (count($items) > 0) {
 			$statement = $this->db->conn->prepare("
-				INSERT INTO {$this->dbInfo['tableRecords']}
-					({$this->dbInfo['columnRecordId']}, time_start, time_end, mission_type)
+				INSERT INTO {$this->dbTableRecords}
+					({$this->dbColumnRecordId}, time_start, time_end, mission_type)
 				VALUES
 					(?, ?, ?, ?)
 				ON CONFLICT DO NOTHING");
@@ -39,4 +36,3 @@ class Alerts extends Records {
 		return false;
 	}
 }
-?>

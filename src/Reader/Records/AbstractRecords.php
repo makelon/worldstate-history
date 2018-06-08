@@ -5,11 +5,31 @@ use WsHistory\Common\Db;
 use WsHistory\Common\ServerException;
 use WsHistory\Reader\Items;
 
-abstract class Records {
+abstract class AbstractRecords {
+	/**
+	* Database connection instance
+	*/
 	protected $db;
-	protected $dbInfo;
 
-	abstract function __construct(Db $db, string $platform);
+	/**
+	* Database table containing the component's records
+	*/
+	protected $dbTableRecords;
+
+	/**
+	* Database table containing the component's item history
+	*/
+	protected $dbTableRecordItems;
+
+	/**
+	* Name of the ID column in the component's database tables
+	*/
+	protected $dbColumnRecordId;
+
+	/**
+	* The constructor sets the db info property values
+	*/
+	abstract public function __construct(Db $db, string $platform);
 
 	/**
 	* Read and add record info and any items to the database.
@@ -36,8 +56,8 @@ abstract class Records {
 			}
 			$itemId = Items::getItemId($item['name'], $item['type'] ?? 'Misc');
 			$statement = $this->db->conn->prepare("
-				INSERT INTO {$this->dbInfo['tableRecordItems']}
-					({$this->dbInfo['columnRecordId']}, item_id, item_count)
+				INSERT INTO {$this->dbTableRecordItems}
+					({$this->dbColumnRecordId}, item_id, item_count)
 				VALUES
 					(?, ?, ?)");
 			if ($statement->execute([$recordId, $itemId, $item['count']]) === false) {
@@ -46,4 +66,3 @@ abstract class Records {
 		}
 	}
 }
-?>

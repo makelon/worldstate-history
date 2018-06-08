@@ -1,10 +1,6 @@
 # Worldstate History
 
-A collection of PHP applications that processes data recorded by the Warframe [worldstate server](https://github.com/makelon/worldstate-server):
-
-* `reader` - Reader that stores the processed data in a PostgreSQL database.
-* `client` - Queryable client that returns the processed data in the JSON format.
-* `items` - Client that returns a list of all known Warframe items.
+Reader and viewer for data recorded by the Warframe [worldstate server](https://github.com/makelon/worldstate-server).
 
 ### Installation and use
 
@@ -27,23 +23,15 @@ ALTER DEFAULT PRIVILEGES GRANT SELECT, UPDATE ON SEQUENCES TO new-db-user;
 ```
 
 ```sh
-psql -d new-db-name -f reader/postgres.sql
+psql -d new-db-name -f res/postgres.sql
 ```
 
-3. Copy `common/Config.dist.php` to `common/Config.php` and edit the values.
+3. Copy `src/Common/Config.php.dist` to `src/Common/Config.php` and edit the values.
 
-4. Generate autoload data.
+4. Add records to the database.
 
 ```sh
-./vendor/bin/php-generate-autoload client/autoload.php client common
-./vendor/bin/php-generate-autoload items/autoload.php items common
-./vendor/bin/php-generate-autoload reader/autoload.php reader common
+php cli/reader.php
 ```
 
-5. Add records to the database.
-
-```sh
-php reader/index.php
-```
-
-6. Point your favorite web server to client/index.php and/or items/index.php.
+5. Point your favorite web server to public/index.php.

@@ -6,11 +6,18 @@ use WsHistory\Common\InputException;
 use WsHistory\Common\ServerException;
 
 class Items {
+	/**
+	* Database connection instance
+	*/
 	private static $db;
+
+	/**
+	* Lookup table for item ids
+	*/
 	private static $knownItems;
 
 	/**
-	* Connect to database and load item list
+	* Get database connection instance and load item list
 	*/
 	public static function init(Db $db) {
 		if (!isset(self::$db)) {
@@ -69,4 +76,3 @@ class Items {
 	}
 
 }
-?>
